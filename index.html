@@ -120,7 +120,7 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 .tab-btn.is-active { color: var(--steel-dark); border-bottom-color: var(--steel); font-weight: 600; }
 
 /* ------------------------------------------------------------------ main */
-.app-main { max-width: 1360px; margin: 0 auto; padding: 22px 24px 60px; }
+.app-main { max-width: min(1800px, 97vw); margin: 0 auto; padding: 22px 24px 60px; }
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; animation: fadeIn .25s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
@@ -425,29 +425,55 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
   overflow: auto;
   max-height: 68vh;
 }
-.tabela-pendencias { width: 100%; border-collapse: collapse; font-size: 12.8px; }
+.tabela-pendencias { width: 100%; border-collapse: collapse; font-size: 12.4px; }
 .tabela-pendencias thead th {
   position: sticky; top: 0;
   background: var(--steel-tint);
   color: var(--steel-dark);
   text-align: left;
-  padding: 10px 10px;
+  padding: 9px 8px;
   font-family: var(--font-display);
   letter-spacing: .3px;
-  font-size: 12.5px;
+  font-size: 12px;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-strong);
   white-space: nowrap;
 }
 .tabela-pendencias td {
-  padding: 8px 10px;
+  padding: 7px 8px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
   color: var(--ink-soft);
 }
 .tabela-pendencias tbody tr:hover { background: #F7FAFC; }
-.tabela-pendencias td.desc-col { max-width: 220px; }
+.tabela-pendencias td.desc-col { max-width: 190px; }
 .tabela-pendencias .cod { font-family: var(--font-mono); color: var(--steel-dark); font-weight: 600; }
+
+/* ---------------------------------------------------- cartões (mobile) */
+.cards-pendencias-mobile { display: none; flex-direction: column; gap: 10px; }
+.pend-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  box-shadow: var(--shadow);
+}
+.pend-card__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.pend-card__id { display: flex; align-items: center; gap: 8px; }
+.pend-card__cod { font-family: var(--font-mono); font-weight: 700; color: var(--steel-dark); font-size: 13.5px; }
+.pend-card__meta { font-size: 12px; color: var(--ink-mute); margin-bottom: 6px; }
+.pend-card__desc { font-size: 13.5px; color: var(--ink); margin-bottom: 9px; line-height: 1.45; }
+.pend-card__fotos { margin-bottom: 9px; }
+.pend-card__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; margin-bottom: 10px; font-size: 12.3px; }
+.pend-card__grid div b { display: block; color: var(--ink-mute); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 2px; }
+.pend-card__status select { width: 100%; }
+.pend-card__acoes { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+.pend-card__acoes .icon-btn { flex: 1; text-align: center; padding: 8px; }
+
+@media (max-width: 767px) {
+  .table-wrap { display: none; }
+  .cards-pendencias-mobile { display: flex; }
+}
 
 /* -------------------------------------------------------- filtros tipo Excel */
 .th-inner { display: flex; align-items: center; gap: 5px; }
@@ -526,6 +552,15 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 .badge--alerta-antiga { background: var(--vermelho-bg); color: var(--vermelho); font-weight: 700; }
 .badge--alerta-encerrada { background: var(--cinza-bg); color: var(--cinza); }
 
+.badge--pendente {
+  background: var(--laranja-bg); color: var(--laranja);
+  border: 1px dashed var(--laranja);
+  font-weight: 700;
+}
+.linha-incompleta { background: #FFFBF3; }
+.tabela-pendencias tr.linha-incompleta:hover { background: #FFF6E8; }
+.pend-card.linha-incompleta { border-color: var(--laranja); border-left-width: 3px; }
+
 .row-acoes { display: flex; gap: 6px; }
 .icon-btn {
   border: 1px solid var(--border-strong);
@@ -567,7 +602,6 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
   font-size: 12.8px;
   width: 140px;
 }
-.add-unidade-form input#nova-unidade-peso { width: 70px; }
 
 /* ---------------------------------------------------------- catálogos */
 .catalogo-grid {
@@ -685,13 +719,14 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 
 .tabela-pendencias .fotos-col { white-space: nowrap; }
 .foto-thumb-btn {
-  width: 26px; height: 26px;
-  border-radius: 5px;
+  width: 42px; height: 42px;
+  border-radius: 6px;
   border: 1px solid var(--border-strong);
   background-size: cover; background-position: center;
   cursor: zoom-in;
   display: inline-block;
-  margin-right: 4px;
+  margin-right: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
 }
 .foto-thumb-btn--vazio {
   background: var(--cinza-bg);
@@ -913,6 +948,15 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 /* --------------------------------------------------------------------- misc */
 [hidden] { display: none !important; }
 
+.app-footer {
+  text-align: center;
+  padding: 18px 24px 90px;
+  font-size: 11.5px;
+  color: var(--ink-mute);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
 @media (max-width: 640px) {
   .topbar { flex-direction: column; align-items: flex-start; gap: 10px; }
   .heatmap__units { flex-wrap: wrap; }
@@ -1019,8 +1063,7 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
             <span class="info-balloon__tip">
               <strong>Como a pontuação é calculada:</strong><br>
               1 pt por pendência aberta · +3 pts por pendência de criticidade Alta ·
-              +2 pts por pendência antiga (&gt;7 dias) · +2 pts por pendência reaberta ·
-              + peso de prioridade da unidade (ajustável na aba "Unidades e Ranking").
+              +2 pts por pendência antiga (&gt;7 dias) · +2 pts por pendência reaberta.
             </span>
           </span>
         </div>
@@ -1046,6 +1089,7 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
     <div class="toolbar">
       <input type="search" id="busca-livre" placeholder="Buscar por código, unidade, descrição, responsável…">
       <button class="btn btn--ghost" id="ft-limpar">Limpar filtros</button>
+      <button class="btn btn--ghost" id="btn-baixar-pdf">⬇ Baixar PDF</button>
       <button class="btn btn--primary" id="btn-nova-pendencia">+ Nova pendência</button>
       <span class="filterbar__count" id="contagem-resultados"></span>
     </div>
@@ -1070,7 +1114,7 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
             <th>Rk.</th>
             <th><span class="th-inner">Ambiente<button type="button" class="th-filter-btn" data-campo="Ambiente" title="Filtrar Ambiente"><svg viewBox="0 0 16 16"><path d="M1 2h14l-5 6v5l-4 2v-7z"/></svg></button></span></th>
             <th><span class="th-inner">Disciplina<button type="button" class="th-filter-btn" data-campo="Disciplina" title="Filtrar Disciplina"><svg viewBox="0 0 16 16"><path d="M1 2h14l-5 6v5l-4 2v-7z"/></svg></button></span></th>
-            <th>Descrição</th><th>Fotos</th><th>Abertura</th><th>Dias</th>
+            <th>Descrição</th><th>Fotos</th><th>Abertura</th><th title="Dias corridos desde a data de abertura da pendência">Dias em aberto</th>
             <th><span class="th-inner">Responsável<button type="button" class="th-filter-btn" data-campo="Responsavel" title="Filtrar Responsável"><svg viewBox="0 0 16 16"><path d="M1 2h14l-5 6v5l-4 2v-7z"/></svg></button></span></th>
             <th><span class="th-inner">Criticidade<button type="button" class="th-filter-btn" data-campo="Criticidade" title="Filtrar Criticidade"><svg viewBox="0 0 16 16"><path d="M1 2h14l-5 6v5l-4 2v-7z"/></svg></button></span></th>
             <th><span class="th-inner">Status<button type="button" class="th-filter-btn" data-campo="Status" title="Filtrar Status"><svg viewBox="0 0 16 16"><path d="M1 2h14l-5 6v5l-4 2v-7z"/></svg></button></span></th>
@@ -1081,6 +1125,8 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
         <tbody id="tbody-pendencias"></tbody>
       </table>
     </div>
+
+    <div class="cards-pendencias-mobile" id="cards-pendencias-mobile"></div>
 
     <div class="col-filter-panel" id="col-filter-panel" hidden>
       <div class="col-filter-panel__toolbar">
@@ -1094,6 +1140,7 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
       </div>
     </div>
   </section>
+
 
   <!-- ======================= ABA 3 — UNIDADES E RANKING ======================= -->
   <section id="tab-unidades" class="tab-panel">
@@ -1120,18 +1167,16 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 
     <div class="panel">
       <div class="panel__head">
-        <h2>Ranking e peso de prioridade por unidade</h2>
+        <h2>Ranking de prioridade por unidade</h2>
         <p>
-          Defina manualmente o <strong>Ranking</strong> (ordem/identificação da unidade, ex.: ordem de
-          entrega contratual) e o <strong>Peso na priorização</strong> (valor somado à pontuação de
-          prioridade da engenharia). Os valores são salvos automaticamente e passam a valer para novas
-          pendências e para o ranking do Dashboard imediatamente.
+          Defina manualmente o <strong>Ranking</strong> de cada unidade (ordem/identificação, ex.: ordem
+          de entrega contratual, posição comercial). O valor é salvo automaticamente e passa a valer
+          para novas pendências a partir de agora.
         </p>
       </div>
 
       <div class="import-box__campos">
-        <p><strong>Ranking:</strong> campo livre, usado apenas como identificação/rótulo da unidade (ex.: ordem de entrega, posição comercial). Não precisa ser sequencial.</p>
-        <p><strong>Peso na priorização:</strong> número somado diretamente na fórmula de pontuação do ranking de "Unidades prioritárias para ação da engenharia" no Dashboard — quanto maior, mais a unidade é empurrada para o topo da lista, independente das pendências.</p>
+        <p><strong>Ranking:</strong> campo livre, usado como identificação/prioridade da unidade (ex.: ordem de entrega, posição comercial). Não precisa ser sequencial — você decide o critério.</p>
         <p class="text-muted">Alterar o ranking de uma unidade não altera pendências já cadastradas (o valor fica registrado no momento do cadastro) — mas passa a valer para pendências novas a partir de agora.</p>
       </div>
 
@@ -1139,7 +1184,6 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
         <input type="text" id="nova-unidade-codigo" placeholder="Código (ex.: 901)">
         <input type="text" id="nova-unidade-pavimento" placeholder="Pavimento (ex.: 9)">
         <input type="text" id="nova-unidade-ranking" placeholder="Ranking (opcional)">
-        <input type="number" id="nova-unidade-peso" placeholder="Peso" value="1" min="0" step="1">
         <button class="btn btn--primary" id="btn-add-unidade">+ Adicionar unidade</button>
       </div>
 
@@ -1152,13 +1196,14 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
         <table class="tabela-pendencias">
           <thead>
             <tr>
-              <th>Unidade</th><th>Pavimento</th><th>Ranking</th><th>Peso na priorização</th>
+              <th>Unidade</th><th>Pavimento</th><th>Ranking</th>
               <th>Status atual</th><th>Pendências abertas</th><th></th>
             </tr>
           </thead>
           <tbody id="tbody-unidades"></tbody>
         </table>
       </div>
+
     </div>
 
     <div class="panel">
@@ -1207,12 +1252,15 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
         <button type="button" class="btn btn--primary" id="btn-baixar-backup">⬇ Baixar backup (.json)</button>
         <label class="btn btn--ghost" for="input-restaurar-backup" style="cursor:pointer;">⬆ Restaurar backup (.json)</label>
         <input type="file" id="input-restaurar-backup" accept=".json" hidden>
-        <button type="button" class="btn btn--danger" id="btn-restaurar-dados">Restaurar dados simulados originais</button>
       </div>
     </div>
   </section>
 
 </main>
+
+<footer class="app-footer">
+  Desenvolvido por Mário Henrique
+</footer>
 
 <!-- ======================= MODAL — CADASTRO / EDIÇÃO ======================= -->
 <div class="modal-overlay" id="modal-overlay" hidden>
@@ -1263,10 +1311,13 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 
       <div class="form-row">
         <label>Responsável *
-          <select id="f-responsavel" required></select>
+          <select id="f-responsavel" required>
+            <option value="">— Selecionar —</option>
+          </select>
         </label>
         <label>Criticidade *
           <select id="f-criticidade" required>
+            <option value="">— Selecionar —</option>
             <option value="Baixa">Baixa</option>
             <option value="Média">Média</option>
             <option value="Alta">Alta</option>
@@ -1346,6 +1397,8 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* =========================================================================
    Painel de Terminalidade — lógica 100% client-side (sem servidor)
@@ -1433,7 +1486,6 @@ function gerarUnidades() {
         pavimento: pav,
         posicao: pos,
         ranking: ranking,
-        peso_ranking: (pos === "01" || pos === "04") ? 1 : 2,
       });
       ranking += 1;
     });
@@ -1585,7 +1637,7 @@ function popularSelectsEstaticos() {
 
   fillSelect(document.getElementById("f-ambiente"), state.ambientes, false);
   fillSelect(document.getElementById("f-disciplina"), state.disciplinas, false);
-  fillSelect(document.getElementById("f-responsavel"), state.responsaveis, false);
+  fillSelect(document.getElementById("f-responsavel"), state.responsaveis, true, "— Selecionar —");
   fillSelect(document.getElementById("f-status"), STATUS_LIST, false);
 
   const unidadesOpts = state.unidades.map((u) => ({ value: u.unidade, label: `${u.unidade}` }));
@@ -1595,7 +1647,7 @@ function popularSelectsEstaticos() {
 
 /* -------------------------------------------------------------- unidades */
 function unidadeInfo(codigo) {
-  return state.unidades.find((u) => u.unidade === codigo) || { ranking: "", peso_ranking: 2 };
+  return state.unidades.find((u) => u.unidade === codigo) || { ranking: "" };
 }
 function pendenciasDaUnidade(codigo, lista) { return (lista || state.pendencias).filter((p) => p.Unidade === codigo); }
 
@@ -1623,8 +1675,7 @@ function pontuacaoUnidade(codigo, lista) {
   const criticas = pend.filter((p) => p.Criticidade === "Alta").length;
   const antigas = pend.filter((p) => p.Alerta === "Pendência antiga").length;
   const reabertas = pend.filter((p) => p.Status === "Reaberta").length;
-  const peso = unidadeInfo(codigo).peso_ranking || 2;
-  return { pontuacao: abertas + criticas * 3 + antigas * 2 + reabertas * 2 + peso, abertas, criticas, antigas, reabertas };
+  return { pontuacao: abertas + criticas * 3 + antigas * 2 + reabertas * 2, abertas, criticas, antigas, reabertas };
 }
 
 /* ---------------------------------------------------- cálculo dias/alerta */
@@ -1894,12 +1945,20 @@ function renderGraficos(lista) {
 }
 
 /* -------------------------------------------------------------- tabela */
-function badgeCriticidade(c) { return `<span class="badge badge--crit-${slug(c)}">${c}</span>`; }
+function badgeCriticidade(c) {
+  if (!c) return `<span class="badge badge--pendente" title="Engenheiro precisa definir">Definir</span>`;
+  return `<span class="badge badge--crit-${slug(c)}">${c}</span>`;
+}
+function badgeResponsavel(r) {
+  if (!r) return `<span class="badge badge--pendente" title="Engenheiro precisa definir">Definir responsável</span>`;
+  return r;
+}
 function badgeAlerta(a) {
   const map = { "Dentro do fluxo normal": "normal", "Atenção": "atencao", "Pendência antiga": "antiga", "Encerrada": "encerrada" };
   return `<span class="badge badge--alerta-${map[a] || "normal"}">${a}</span>`;
 }
 function formatarData(iso) { if (!iso) return "—"; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; }
+function pendenciaIncompleta(p) { return !p.Criticidade || !p.Responsavel; }
 
 function selectStatusInline(codigo, statusAtual) {
   const opcoes = STATUS_LIST.map((s) => `<option value="${s}" ${s === statusAtual ? "selected" : ""}>${s}</option>`).join("");
@@ -1918,7 +1977,7 @@ function renderTabela(lista) {
   const ordenada = [...lista].sort((a, b) => (b.Dias_Aberto ?? 0) - (a.Dias_Aberto ?? 0));
 
   tbody.innerHTML = ordenada.map((p) => `
-    <tr>
+    <tr class="${pendenciaIncompleta(p) ? "linha-incompleta" : ""}">
       <td><input type="checkbox" class="chk-linha" data-codigo="${p.Codigo}" ${state.selecionadas.has(p.Codigo) ? "checked" : ""}></td>
       <td class="cod">${p.Codigo}</td>
       <td>${p.Unidade}</td>
@@ -1929,7 +1988,7 @@ function renderTabela(lista) {
       <td class="fotos-col">${colunaFotos(p)}</td>
       <td>${formatarData(p.Data_Abertura)}</td>
       <td>${p.Dias_Aberto ?? "—"}</td>
-      <td>${p.Responsavel}</td>
+      <td>${badgeResponsavel(p.Responsavel)}</td>
       <td>${badgeCriticidade(p.Criticidade)}</td>
       <td>${selectStatusInline(p.Codigo, p.Status)}</td>
       <td>${badgeAlerta(p.Alerta)}</td>
@@ -1950,6 +2009,45 @@ function renderTabela(lista) {
   tbody.querySelectorAll(".chk-linha").forEach((chk) => chk.addEventListener("change", () => alternarSelecao(chk.dataset.codigo, chk.checked)));
 
   atualizarBulkbar();
+  renderCardsPendenciasMobile(ordenada);
+}
+
+/* -------------------------------------------------------- cartões (mobile) */
+function renderCardsPendenciasMobile(ordenada) {
+  const wrap = document.getElementById("cards-pendencias-mobile");
+  if (!wrap) return;
+
+  wrap.innerHTML = ordenada.map((p) => `
+    <div class="pend-card ${pendenciaIncompleta(p) ? "linha-incompleta" : ""}">
+      <div class="pend-card__top">
+        <div class="pend-card__id">
+          <input type="checkbox" class="chk-linha" data-codigo="${p.Codigo}" ${state.selecionadas.has(p.Codigo) ? "checked" : ""}>
+          <span class="pend-card__cod">${p.Codigo}</span>
+        </div>
+        ${badgeAlerta(p.Alerta)}
+      </div>
+      <div class="pend-card__meta">Unidade ${p.Unidade} (Rk. ${p.Ranking || "—"}) · ${p.Ambiente} · ${p.Disciplina}</div>
+      <div class="pend-card__desc">${p.Descricao}</div>
+      <div class="pend-card__fotos">${colunaFotos(p)}</div>
+      <div class="pend-card__grid">
+        <div><b>Abertura</b>${formatarData(p.Data_Abertura)} · ${p.Dias_Aberto ?? "—"} dias</div>
+        <div><b>Responsável</b>${badgeResponsavel(p.Responsavel)}</div>
+        <div><b>Criticidade</b>${badgeCriticidade(p.Criticidade)}</div>
+        <div class="pend-card__status"><b>Status</b>${selectStatusInline(p.Codigo, p.Status)}</div>
+      </div>
+      <div class="pend-card__acoes">
+        <button class="icon-btn" data-editar="${p.Codigo}">Editar</button>
+        <button class="icon-btn" data-duplicar="${p.Codigo}">Duplicar</button>
+        <button class="icon-btn" data-excluir="${p.Codigo}">Excluir</button>
+      </div>
+    </div>`).join("") || `<p class="text-muted">Nenhuma pendência encontrada.</p>`;
+
+  wrap.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirModal(btn.dataset.editar)));
+  wrap.querySelectorAll("[data-duplicar]").forEach((btn) => btn.addEventListener("click", () => duplicarPendencia(btn.dataset.duplicar)));
+  wrap.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", () => excluirPendencia(btn.dataset.excluir)));
+  wrap.querySelectorAll("[data-quick-status]").forEach((sel) => sel.addEventListener("change", () => alterarStatusRapido(sel.dataset.quickStatus, sel.value)));
+  wrap.querySelectorAll("[data-lightbox]").forEach((el) => el.addEventListener("click", () => abrirLightbox(el.dataset.lightbox, el.dataset.qual)));
+  wrap.querySelectorAll(".chk-linha").forEach((chk) => chk.addEventListener("change", () => alternarSelecao(chk.dataset.codigo, chk.checked)));
 }
 
 /* --------------------------------------------------------- seleção em massa */
@@ -2046,11 +2144,106 @@ function abrirLightbox(codigo, qualFoto) {
 function fecharLightbox() { document.getElementById("lightbox-overlay").hidden = true; }
 
 /* =========================================================================
+   Relatório em PDF — respeita os filtros aplicados na tela
+   ========================================================================= */
+function descreverFiltrosAtivosPDF() {
+  const partes = [];
+  const rotulos = { Unidade: "Unidade", Ambiente: "Ambiente", Disciplina: "Disciplina", Responsavel: "Responsável", Criticidade: "Criticidade", Status: "Status", Alerta: "Alerta" };
+  for (const campo in state.filtrosColuna) {
+    const vals = [...state.filtrosColuna[campo]];
+    partes.push(`${rotulos[campo] || campo}: ${vals.join(", ")}`);
+  }
+  const busca = document.getElementById("busca-livre").value.trim();
+  if (busca) partes.push(`Busca livre: "${busca}"`);
+  return partes.length ? partes.join("  ·  ") : "Nenhum filtro aplicado — todas as pendências";
+}
+
+function nomeArquivoPDF() {
+  const data = new Date().toISOString().slice(0, 10);
+  return `relatorio_pendencias_${slug(state.config.nomeObra) || "obra"}_${data}.pdf`;
+}
+
+function baixarPDFPendencias() {
+  if (!window.jspdf) { toast("Biblioteca de PDF não carregou. Verifique sua conexão com a internet."); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+  const larguraPagina = doc.internal.pageSize.getWidth();
+
+  const lista = aplicarFiltrosTabela(state.pendencias);
+  const ordenada = [...lista].sort((a, b) => (b.Dias_Aberto ?? 0) - (a.Dias_Aberto ?? 0));
+
+  // Cabeçalho do relatório
+  doc.setFont(undefined, "bold");
+  doc.setFontSize(15);
+  doc.setTextColor(29, 67, 86);
+  doc.text(state.config.nomeObra || "Painel de Terminalidade", 28, 30);
+
+  doc.setFont(undefined, "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(70, 70, 70);
+  doc.text(`Relatório de Pendências — gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 28, 46);
+
+  doc.setFontSize(8.5);
+  doc.setTextColor(120, 120, 120);
+  const filtrosTexto = doc.splitTextToSize(`Filtros aplicados: ${descreverFiltrosAtivosPDF()}`, larguraPagina - 56);
+  doc.text(filtrosTexto, 28, 60);
+  const yAposFiltros = 60 + (filtrosTexto.length - 1) * 10;
+  doc.text(`${ordenada.length} pendência(s) neste relatório`, 28, yAposFiltros + 12);
+
+  // Tabela — Ranking, Dias e Criticidade ficam de fora do PDF, sem coluna de ações
+  const linhasTabela = ordenada.map((p) => [
+    "", p.Codigo, p.Unidade, p.Ambiente, p.Disciplina, p.Descricao,
+    formatarData(p.Data_Abertura), p.Responsavel || "A definir", p.Status, p.Alerta,
+  ]);
+
+  doc.autoTable({
+    startY: yAposFiltros + 20,
+    head: [["Foto", "Código", "Unidade", "Ambiente", "Disciplina", "Descrição", "Abertura", "Responsável", "Status", "Alerta"]],
+    body: linhasTabela,
+    styles: { fontSize: 8, cellPadding: 5, valign: "middle", minCellHeight: 50 },
+    headStyles: { fillColor: [44, 95, 124], textColor: 255, fontSize: 8.5 },
+    alternateRowStyles: { fillColor: [247, 250, 252] },
+    columnStyles: {
+      0: { cellWidth: 66 },
+      1: { cellWidth: 46 },
+      5: { cellWidth: "auto" },
+    },
+    margin: { left: 28, right: 28 },
+    didDrawCell: (data) => {
+      if (data.section === "body" && data.column.index === 0) {
+        const p = ordenada[data.row.index];
+        const foto = p.Foto_Antes || p.Foto_Depois;
+        if (foto) {
+          try {
+            const formato = foto.includes("image/png") ? "PNG" : "JPEG";
+            doc.addImage(foto, formato, data.cell.x + 4, data.cell.y + 3, 58, 44);
+          } catch (e) { /* imagem inválida — ignora silenciosamente */ }
+        }
+      }
+    },
+  });
+
+  // Numeração "Página X de Y" — feita depois de a tabela inteira estar pronta,
+  // para o total (Y) já estar correto em todas as páginas.
+  const totalPaginas = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPaginas; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text(`Página ${i} de ${totalPaginas}`, larguraPagina - 90, doc.internal.pageSize.getHeight() - 14);
+    doc.text("Gerado pelo Painel de Terminalidade", 28, doc.internal.pageSize.getHeight() - 14);
+  }
+
+  doc.save(nomeArquivoPDF());
+  toast("PDF gerado.");
+}
+
+/* =========================================================================
    Chat guiado — cadastro rápido de pendências
    Máquina de estados simples (sem IA): o bot pergunta, o usuário toca numa
    opção ou digita um texto curto, o bot passa pra próxima pergunta.
    ========================================================================= */
-const ETAPAS_CHAT = ["unidade", "ambiente", "disciplina", "criticidade", "responsavel", "descricao", "foto", "confirmar"];
+const ETAPAS_CHAT = ["unidade", "ambiente", "disciplina", "descricao", "foto", "confirmar"];
 
 const chat = { etapaIndex: 0, rascunho: {}, fotoDataUrl: "", etapaOutroOrigem: null };
 
@@ -2092,8 +2285,8 @@ function adicionarMensagemUsuario(html) {
   corpo.scrollTop = corpo.scrollHeight;
 }
 
-const ETAPAS_COM_OUTRO = ["unidade", "ambiente", "disciplina", "responsavel"];
-const CATALOGO_POR_ETAPA = { ambiente: "ambientes", disciplina: "disciplinas", responsavel: "responsaveis" };
+const ETAPAS_COM_OUTRO = ["unidade", "ambiente", "disciplina"];
+const CATALOGO_POR_ETAPA = { ambiente: "ambientes", disciplina: "disciplinas" };
 
 function opcoesParaEtapaChat(etapa) {
   if (etapa === "unidade") return [...state.unidades].sort((a, b) => a.unidade.localeCompare(b.unidade)).map((u) => u.unidade);
@@ -2224,7 +2417,7 @@ function confirmarOutroChat(etapaOrigem) {
     state[campoCatalogo].push(valor);
   }
   if (etapaOrigem === "unidade" && !state.unidades.some((u) => u.unidade === valor)) {
-    state.unidades.push({ unidade: valor, pavimento: "—", posicao: "", ranking: String(state.unidades.length + 1), peso_ranking: 2 });
+    state.unidades.push({ unidade: valor, pavimento: "—", posicao: "", ranking: String(state.unidades.length + 1) });
   }
   salvarDados();
   popularSelectsEstaticos();
@@ -2310,11 +2503,12 @@ function renderConfirmacaoChat() {
       <div><b>Unidade:</b> ${r.unidade}</div>
       <div><b>Ambiente:</b> ${r.ambiente}</div>
       <div><b>Disciplina:</b> ${r.disciplina}</div>
-      <div><b>Criticidade:</b> ${r.criticidade}</div>
-      <div><b>Responsável:</b> ${r.responsavel}</div>
       <div><b>Descrição:</b> ${r.descricao}</div>
       ${chat.fotoDataUrl ? `<div class="chat-foto-preview"><img src="${chat.fotoDataUrl}"></div>` : ""}
-    </div>`);
+    </div>
+    <p style="margin-top:8px; font-size:12px; color:var(--ink-mute);">
+      Criticidade e responsável ficam em aberto — o engenheiro completa depois na aba Pendências.
+    </p>`);
 
   const areaInput = document.getElementById("chat-input-area");
   areaInput.innerHTML = `
@@ -2347,8 +2541,8 @@ function confirmarPendenciaChat() {
     Disciplina: r.disciplina,
     Descricao: r.descricao,
     Data_Abertura: new Date().toISOString().slice(0, 10),
-    Responsavel: r.responsavel,
-    Criticidade: r.criticidade,
+    Responsavel: "",
+    Criticidade: "",
     Status: "Aberta",
     Data_Conferencia: "",
     Foto_Antes: chat.fotoDataUrl || "",
@@ -2356,16 +2550,16 @@ function confirmarPendenciaChat() {
     Observacoes: "",
   };
 
-  const erro = validarPendencia(nova);
+  const erro = validarPendenciaChat(nova);
   if (erro) { adicionarMensagemBot(`Não consegui salvar: ${erro}`); return; }
 
   state.pendencias.push(nova);
   salvarDados();
   renderTudo();
 
-  adicionarMensagemBot(`Pendência <strong>${nova.Codigo}</strong> registrada com sucesso! 🎉`);
+  adicionarMensagemBot(`Pendência <strong>${nova.Codigo}</strong> registrada! Falta só a criticidade e o responsável — o engenheiro completa isso na aba Pendências. 🎉`);
   mostrarBotaoRecomecarChat();
-  toast(`Pendência ${nova.Codigo} cadastrada pelo chat.`);
+  toast(`Pendência ${nova.Codigo} cadastrada pelo chat — falta completar criticidade e responsável.`);
 }
 
 
@@ -2385,9 +2579,8 @@ function renderTabelaUnidades() {
     return `
     <tr>
       <td class="cod">${u.unidade}</td>
-      <td><input type="text" class="input-inline" style="width:56px" data-campo="pavimento" data-unidade="${u.unidade}" value="${u.pavimento}"></td>
+      <td><input type="text" class="input-inline" data-campo="pavimento" data-unidade="${u.unidade}" value="${u.pavimento}"></td>
       <td><input type="text" class="input-inline" data-campo="ranking" data-unidade="${u.unidade}" value="${u.ranking}"></td>
-      <td><input type="number" class="input-inline" data-campo="peso_ranking" data-unidade="${u.unidade}" value="${u.peso_ranking}" min="0" step="1"></td>
       <td>${status}</td>
       <td>${abertas}</td>
       <td><button class="icon-btn" data-remover-unidade="${u.unidade}">Remover</button></td>
@@ -2406,10 +2599,7 @@ function atualizarUnidade(codigoUnidade, campo, valor, inputEl) {
   const unidade = state.unidades.find((u) => u.unidade === codigoUnidade);
   if (!unidade) return;
 
-  if (campo === "peso_ranking") {
-    const numero = Number(valor);
-    unidade.peso_ranking = isNaN(numero) ? 0 : numero;
-  } else if (campo === "pavimento") {
+  if (campo === "pavimento") {
     unidade.pavimento = valor.trim();
   } else {
     unidade.ranking = valor.trim();
@@ -2436,18 +2626,16 @@ function adicionarUnidade() {
   const codigo = document.getElementById("nova-unidade-codigo").value.trim();
   const pavimento = document.getElementById("nova-unidade-pavimento").value.trim();
   const ranking = document.getElementById("nova-unidade-ranking").value.trim();
-  const peso = Number(document.getElementById("nova-unidade-peso").value) || 1;
 
   if (!codigo) { toast("Informe o código da unidade."); return; }
   if (state.unidades.some((u) => u.unidade === codigo)) { toast(`A unidade ${codigo} já existe.`); return; }
 
-  state.unidades.push({ unidade: codigo, pavimento: pavimento || "—", posicao: "", ranking: ranking || String(state.unidades.length + 1), peso_ranking: peso });
+  state.unidades.push({ unidade: codigo, pavimento: pavimento || "—", posicao: "", ranking: ranking || String(state.unidades.length + 1) });
   salvarDados();
   popularSelectsEstaticos();
   renderTabelaUnidades();
   renderTudo();
   ["nova-unidade-codigo", "nova-unidade-pavimento", "nova-unidade-ranking"].forEach((id) => (document.getElementById(id).value = ""));
-  document.getElementById("nova-unidade-peso").value = "1";
   toast(`Unidade ${codigo} adicionada.`);
 }
 
@@ -2467,11 +2655,11 @@ function removerUnidade(codigo) {
 }
 
 function restaurarRankingPadrao() {
-  if (!confirm("Isso vai substituir o Ranking e o Peso na priorização de todas as unidades pelos valores padrão gerados originalmente. As pendências já cadastradas não são alteradas. Deseja continuar?")) return;
+  if (!confirm("Isso vai substituir o Ranking de todas as unidades pelos valores padrão gerados originalmente. As pendências já cadastradas não são alteradas. Deseja continuar?")) return;
   const padrao = gerarUnidades();
   state.unidades = state.unidades.map((u) => {
     const base = padrao.find((p) => p.unidade === u.unidade);
-    return base ? { ...u, ranking: base.ranking, peso_ranking: base.peso_ranking } : u;
+    return base ? { ...u, ranking: base.ranking } : u;
   });
   salvarDados();
   renderTabelaUnidades();
@@ -2751,6 +2939,17 @@ function validarPendencia(p) {
   return null;
 }
 
+// Validação mais enxuta usada pelo chat: não exige Criticidade nem Responsável,
+// já que esses campos ficam para o engenheiro completar depois na aba Pendências.
+function validarPendenciaChat(p) {
+  const obrigatorios = { Unidade: "Unidade", Ambiente: "Ambiente", Disciplina: "Disciplina", Descricao: "Descrição", Data_Abertura: "Data de abertura" };
+  const faltando = Object.entries(obrigatorios).filter(([campo]) => !String(p[campo] || "").trim()).map(([, label]) => label);
+  if (faltando.length) return `Campos obrigatórios ausentes: ${faltando.join(", ")}.`;
+  if (!STATUS_LIST.includes(p.Status)) return `Status inválido: '${p.Status}'.`;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(p.Data_Abertura)) return "Data de abertura inválida. Utilize o formato AAAA-MM-DD.";
+  return null;
+}
+
 function salvarPendencia(ev) {
   ev.preventDefault();
   const erroEl = document.getElementById("form-erro");
@@ -2820,6 +3019,7 @@ function bindEvents() {
 
   document.getElementById("busca-livre").addEventListener("input", debounce(renderTudo, 200));
   document.getElementById("ft-limpar").addEventListener("click", limparTodosFiltros);
+  document.getElementById("btn-baixar-pdf").addEventListener("click", baixarPDFPendencias);
 
   document.querySelectorAll(".th-filter-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -2876,7 +3076,6 @@ function bindEvents() {
   document.getElementById("chat-fab").addEventListener("click", abrirChat);
   document.getElementById("chat-fechar").addEventListener("click", fecharChat);
 
-  document.getElementById("btn-restaurar-dados").addEventListener("click", restaurarDadosOriginais);
 
   document.getElementById("busca-unidades").addEventListener("input", debounce(renderTabelaUnidades, 200));
   document.getElementById("btn-restaurar-ranking").addEventListener("click", restaurarRankingPadrao);
