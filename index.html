@@ -1094,6 +1094,16 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
       <span class="filterbar__count" id="contagem-resultados"></span>
     </div>
 
+    <div class="filterbar filterbar--wrap" id="filtros-tabela">
+      <select id="ft-unidade"><option value="">Unidade</option></select>
+      <select id="ft-ambiente"><option value="">Ambiente</option></select>
+      <select id="ft-disciplina"><option value="">Disciplina</option></select>
+      <select id="ft-responsavel"><option value="">Responsável</option></select>
+      <select id="ft-criticidade"><option value="">Criticidade</option></select>
+      <select id="ft-status"><option value="">Status</option></select>
+      <select id="ft-alerta"><option value="">Alerta</option></select>
+    </div>
+
     <div class="bulkbar" id="bulkbar" hidden>
       <span class="bulkbar__count" id="bulkbar-count">0 selecionada(s)</span>
       <select id="bulk-status">
@@ -1397,8 +1407,8 @@ select, input, textarea { font-family: inherit; font-size: 14px; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3/dist/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* =========================================================================
    Painel de Terminalidade — lógica 100% client-side (sem servidor)
@@ -1643,6 +1653,15 @@ function popularSelectsEstaticos() {
   const unidadesOpts = state.unidades.map((u) => ({ value: u.unidade, label: `${u.unidade}` }));
   fillSelect(document.getElementById("fg-unidade"), unidadesOpts, true, "Unidade — todas");
   fillSelect(document.getElementById("f-unidade"), unidadesOpts, false);
+
+  // Barra de filtros por dropdown da aba Pendências (usa o mesmo estado dos funis)
+  fillSelect(document.getElementById("ft-unidade"), unidadesOpts, true, "Unidade");
+  fillSelect(document.getElementById("ft-ambiente"), state.ambientes, true, "Ambiente");
+  fillSelect(document.getElementById("ft-disciplina"), state.disciplinas, true, "Disciplina");
+  fillSelect(document.getElementById("ft-responsavel"), state.responsaveis, true, "Responsável");
+  fillSelect(document.getElementById("ft-criticidade"), CRITICIDADES, true, "Criticidade");
+  fillSelect(document.getElementById("ft-status"), STATUS_LIST, true, "Status");
+  fillSelect(document.getElementById("ft-alerta"), ALERTAS, true, "Alerta");
 }
 
 /* -------------------------------------------------------------- unidades */
@@ -1791,10 +1810,32 @@ function aplicarFiltroColuna() {
   renderTudo();
 }
 
+// Mapa entre o campo da pendência e o id do select correspondente na barra de filtros
+const SELECT_FILTRO_POR_CAMPO = {
+  Unidade: "ft-unidade", Ambiente: "ft-ambiente", Disciplina: "ft-disciplina",
+  Responsavel: "ft-responsavel", Criticidade: "ft-criticidade", Status: "ft-status", Alerta: "ft-alerta",
+};
+
 function atualizarIconesFiltroColuna() {
   document.querySelectorAll(".th-filter-btn").forEach((btn) => {
     btn.classList.toggle("is-ativo", !!state.filtrosColuna[btn.dataset.campo]);
   });
+  // Mantém a barra de dropdowns sincronizada com o que foi definido pelo funil:
+  // mostra o valor se for um filtro de valor único, ou volta para "todos" se
+  // vários valores estiverem selecionados (o dropdown não representa multi-seleção).
+  Object.entries(SELECT_FILTRO_POR_CAMPO).forEach(([campo, selectId]) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const selecionados = state.filtrosColuna[campo];
+    select.value = (selecionados && selecionados.size === 1) ? [...selecionados][0] : "";
+  });
+}
+
+function aplicarFiltroDropdown(campo, valor) {
+  if (!valor) delete state.filtrosColuna[campo];
+  else state.filtrosColuna[campo] = new Set([valor]);
+  atualizarIconesFiltroColuna();
+  renderTudo();
 }
 
 function limparTodosFiltros() {
@@ -2163,79 +2204,165 @@ function nomeArquivoPDF() {
   return `relatorio_pendencias_${slug(state.config.nomeObra) || "obra"}_${data}.pdf`;
 }
 
-function baixarPDFPendencias() {
-  if (!window.jspdf) { toast("Biblioteca de PDF não carregou. Verifique sua conexão com a internet."); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const larguraPagina = doc.internal.pageSize.getWidth();
+function desenharTabelaManualPDF(doc, ordenada, startY, larguraPagina) {
+  const colunas = [
+    { titulo: "Foto", largura: 66 },
+    { titulo: "Código", largura: 50 },
+    { titulo: "Unidade", largura: 48 },
+    { titulo: "Ambiente", largura: 70 },
+    { titulo: "Disciplina", largura: 70 },
+    { titulo: "Descrição", largura: 150 },
+    { titulo: "Abertura", largura: 55 },
+    { titulo: "Responsável", largura: 80 },
+    { titulo: "Status", largura: 80 },
+    { titulo: "Alerta", largura: 80 },
+  ];
+  const margemEsquerda = 28;
+  const alturaLinha = 52;
+  const alturaPagina = doc.internal.pageSize.getHeight();
+  let y = startY;
 
-  const lista = aplicarFiltrosTabela(state.pendencias);
-  const ordenada = [...lista].sort((a, b) => (b.Dias_Aberto ?? 0) - (a.Dias_Aberto ?? 0));
-
-  // Cabeçalho do relatório
-  doc.setFont(undefined, "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(29, 67, 86);
-  doc.text(state.config.nomeObra || "Painel de Terminalidade", 28, 30);
-
-  doc.setFont(undefined, "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(70, 70, 70);
-  doc.text(`Relatório de Pendências — gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 28, 46);
-
-  doc.setFontSize(8.5);
-  doc.setTextColor(120, 120, 120);
-  const filtrosTexto = doc.splitTextToSize(`Filtros aplicados: ${descreverFiltrosAtivosPDF()}`, larguraPagina - 56);
-  doc.text(filtrosTexto, 28, 60);
-  const yAposFiltros = 60 + (filtrosTexto.length - 1) * 10;
-  doc.text(`${ordenada.length} pendência(s) neste relatório`, 28, yAposFiltros + 12);
-
-  // Tabela — Ranking, Dias e Criticidade ficam de fora do PDF, sem coluna de ações
-  const linhasTabela = ordenada.map((p) => [
-    "", p.Codigo, p.Unidade, p.Ambiente, p.Disciplina, p.Descricao,
-    formatarData(p.Data_Abertura), p.Responsavel || "A definir", p.Status, p.Alerta,
-  ]);
-
-  doc.autoTable({
-    startY: yAposFiltros + 20,
-    head: [["Foto", "Código", "Unidade", "Ambiente", "Disciplina", "Descrição", "Abertura", "Responsável", "Status", "Alerta"]],
-    body: linhasTabela,
-    styles: { fontSize: 8, cellPadding: 5, valign: "middle", minCellHeight: 50 },
-    headStyles: { fillColor: [44, 95, 124], textColor: 255, fontSize: 8.5 },
-    alternateRowStyles: { fillColor: [247, 250, 252] },
-    columnStyles: {
-      0: { cellWidth: 66 },
-      1: { cellWidth: 46 },
-      5: { cellWidth: "auto" },
-    },
-    margin: { left: 28, right: 28 },
-    didDrawCell: (data) => {
-      if (data.section === "body" && data.column.index === 0) {
-        const p = ordenada[data.row.index];
-        const foto = p.Foto_Antes || p.Foto_Depois;
-        if (foto) {
-          try {
-            const formato = foto.includes("image/png") ? "PNG" : "JPEG";
-            doc.addImage(foto, formato, data.cell.x + 4, data.cell.y + 3, 58, 44);
-          } catch (e) { /* imagem inválida — ignora silenciosamente */ }
-        }
-      }
-    },
-  });
-
-  // Numeração "Página X de Y" — feita depois de a tabela inteira estar pronta,
-  // para o total (Y) já estar correto em todas as páginas.
-  const totalPaginas = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= totalPaginas; i++) {
-    doc.setPage(i);
+  function desenharCabecalhoTabela() {
+    doc.setFillColor(44, 95, 124);
+    doc.setDrawColor(44, 95, 124);
+    doc.rect(margemEsquerda, y, colunas.reduce((a, c) => a + c.largura, 0), 20, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.setTextColor(255, 255, 255);
+    let x = margemEsquerda;
+    colunas.forEach((c) => { doc.text(c.titulo, x + 4, y + 13); x += c.largura; });
+    y += 20;
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(40, 40, 40);
     doc.setFontSize(8);
-    doc.setTextColor(140, 140, 140);
-    doc.text(`Página ${i} de ${totalPaginas}`, larguraPagina - 90, doc.internal.pageSize.getHeight() - 14);
-    doc.text("Gerado pelo Painel de Terminalidade", 28, doc.internal.pageSize.getHeight() - 14);
   }
 
-  doc.save(nomeArquivoPDF());
-  toast("PDF gerado.");
+  desenharCabecalhoTabela();
+
+  ordenada.forEach((p, idx) => {
+    if (!p) return;
+    if (y + alturaLinha > alturaPagina - 30) {
+      doc.addPage();
+      y = 28;
+      desenharCabecalhoTabela();
+    }
+    const larguraTotal = colunas.reduce((a, c) => a + c.largura, 0);
+    if (idx % 2 === 1) { doc.setFillColor(247, 250, 252); doc.rect(margemEsquerda, y, larguraTotal, alturaLinha, "F"); }
+    doc.setDrawColor(225, 230, 234);
+    doc.rect(margemEsquerda, y, larguraTotal, alturaLinha);
+
+    let x = margemEsquerda;
+    const foto = p.Foto_Antes || p.Foto_Depois;
+    if (foto) {
+      try {
+        const formato = foto.includes("image/png") ? "PNG" : "JPEG";
+        doc.addImage(foto, formato, x + 4, y + 4, 58, 44);
+      } catch (e) { /* imagem inválida — ignora */ }
+    }
+    x += colunas[0].largura;
+
+    const valores = [p.Codigo, p.Unidade, p.Ambiente, p.Disciplina, p.Descricao, formatarData(p.Data_Abertura), p.Responsavel || "A definir", p.Status, p.Alerta];
+    valores.forEach((valor, i) => {
+      const larguraCol = colunas[i + 1].largura;
+      const linhas = doc.splitTextToSize(String(valor ?? ""), larguraCol - 8).slice(0, 4);
+      doc.text(linhas, x + 4, y + 12);
+      x += larguraCol;
+    });
+
+    y += alturaLinha;
+  });
+
+  return y;
+}
+
+function baixarPDFPendencias() {
+  try {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert("Não foi possível gerar o PDF: a biblioteca de geração de PDF não carregou.\n\nIsso costuma acontecer por falta de conexão com a internet no momento em que a página abriu (as bibliotecas vêm de um servidor externo). Recarregue a página com internet ativa e tente de novo.");
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+    const larguraPagina = doc.internal.pageSize.getWidth();
+
+    const lista = aplicarFiltrosTabela(state.pendencias);
+    const ordenada = [...lista].sort((a, b) => (b.Dias_Aberto ?? 0) - (a.Dias_Aberto ?? 0));
+
+    // Cabeçalho do relatório
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.setTextColor(29, 67, 86);
+    doc.text(state.config.nomeObra || "Painel de Terminalidade", 28, 30);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(70, 70, 70);
+    doc.text(`Relatório de Pendências — gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 28, 46);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(120, 120, 120);
+    const filtrosTexto = doc.splitTextToSize(`Filtros aplicados: ${descreverFiltrosAtivosPDF()}`, larguraPagina - 56);
+    doc.text(filtrosTexto, 28, 60);
+    const yAposFiltros = 60 + (filtrosTexto.length - 1) * 10;
+    doc.text(`${ordenada.length} pendência(s) neste relatório`, 28, yAposFiltros + 12);
+
+    const startY = yAposFiltros + 20;
+
+    if (typeof doc.autoTable === "function") {
+      // Caminho principal: plugin jspdf-autotable disponível
+      const linhasTabela = ordenada.map((p) => [
+        "", p.Codigo, p.Unidade, p.Ambiente, p.Disciplina, p.Descricao,
+        formatarData(p.Data_Abertura), p.Responsavel || "A definir", p.Status, p.Alerta,
+      ]);
+
+      doc.autoTable({
+        startY,
+        head: [["Foto", "Código", "Unidade", "Ambiente", "Disciplina", "Descrição", "Abertura", "Responsável", "Status", "Alerta"]],
+        body: linhasTabela,
+        styles: { fontSize: 8, cellPadding: 5, valign: "middle", minCellHeight: 50, font: "helvetica" },
+        headStyles: { fillColor: [44, 95, 124], textColor: 255, fontSize: 8.5 },
+        alternateRowStyles: { fillColor: [247, 250, 252] },
+        columnStyles: { 0: { cellWidth: 66 }, 1: { cellWidth: 46 }, 5: { cellWidth: "auto" } },
+        margin: { left: 28, right: 28 },
+        didDrawCell: (data) => {
+          if (data.section === "body" && data.column.index === 0) {
+            const codigoLinha = data.row.raw && data.row.raw[1];
+            const p = codigoLinha ? ordenada.find((x) => x.Codigo === codigoLinha) : null;
+            if (!p) return;
+            const foto = p.Foto_Antes || p.Foto_Depois;
+            if (foto) {
+              try {
+                const formato = foto.includes("image/png") ? "PNG" : "JPEG";
+                doc.addImage(foto, formato, data.cell.x + 4, data.cell.y + 3, 58, 44);
+              } catch (e) { /* imagem inválida — ignora silenciosamente */ }
+            }
+          }
+        },
+      });
+    } else {
+      // Reserva: plugin de tabela indisponível — desenha uma tabela simples manualmente,
+      // assim o relatório ainda é gerado mesmo se o plugin não carregar.
+      desenharTabelaManualPDF(doc, ordenada, startY, larguraPagina);
+    }
+
+    // Numeração "Página X de Y" — feita depois de todo o conteúdo pronto,
+    // para o total (Y) já estar correto em todas as páginas.
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPaginas; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(140, 140, 140);
+      doc.text(`Página ${i} de ${totalPaginas}`, larguraPagina - 90, doc.internal.pageSize.getHeight() - 14);
+      doc.text("Gerado pelo Painel de Terminalidade", 28, doc.internal.pageSize.getHeight() - 14);
+    }
+
+    doc.save(nomeArquivoPDF());
+    toast("PDF gerado.");
+  } catch (erro) {
+    console.error("Falha ao gerar PDF:", erro);
+    alert(`Não foi possível gerar o PDF.\n\nDetalhe técnico: ${erro && erro.message ? erro.message : "erro desconhecido"}\n\nSe puder, copie essa mensagem e envie para quem está desenvolvendo o painel.`);
+  }
 }
 
 /* =========================================================================
@@ -3020,6 +3147,10 @@ function bindEvents() {
   document.getElementById("busca-livre").addEventListener("input", debounce(renderTudo, 200));
   document.getElementById("ft-limpar").addEventListener("click", limparTodosFiltros);
   document.getElementById("btn-baixar-pdf").addEventListener("click", baixarPDFPendencias);
+
+  Object.entries(SELECT_FILTRO_POR_CAMPO).forEach(([campo, selectId]) => {
+    document.getElementById(selectId).addEventListener("change", (e) => aplicarFiltroDropdown(campo, e.target.value));
+  });
 
   document.querySelectorAll(".th-filter-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
